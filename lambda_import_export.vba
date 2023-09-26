@@ -1,4 +1,4 @@
-Sub ImportLambdaFunctions()
+Sub ImportLambdasFromTextFile()
 
     Dim fileContent() As String
     Dim i As Long
@@ -123,3 +123,48 @@ Sub ImportLambdaFunctions()
 
 End Sub
 
+Sub ExportLambdasToTextFile()
+
+    Dim nameItem As Name
+    Dim filePath As Variant
+    Dim fileNum As Integer
+    Dim outputStr As String
+    Dim lines() As String
+    Dim i As Integer
+
+    ' Ask user for the output text file path
+    filePath = Application.GetSaveAsFilename(title:="Please choose a file path", _
+                                              FileFilter:="Text Files (*.txt), *.txt")
+
+    ' Exit if user cancels the file dialog
+    If filePath = False Then Exit Sub
+
+    Dim wb As Workbook
+    Set wb = ActiveWorkbook
+    ' Loop through each name in the workbook
+    For Each nameItem In wb.Names
+        ' Split the string into lines
+        lines = Split(nameItem.Comment, vbLf)
+        ' Add the # prefix to each line
+        For i = LBound(lines) To UBound(lines)
+            lines(i) = "#" & lines(i)
+        Next i
+        ' Check if the name refers to a LAMBDA function
+        If InStr(1, nameItem.RefersTo, "LAMBDA(", vbTextCompare) > 0 Then
+            outputStr = outputStr & _
+                Join(lines, vbCrLf) & vbCrLf & _
+                nameItem.Name & " " & nameItem.RefersTo & vbCrLf & vbCrLf
+        End If
+    Next nameItem
+
+    ' Write the results to the file
+    If outputStr <> "" Then
+        fileNum = FreeFile
+        Open filePath For Output As fileNum
+        Print #fileNum, outputStr
+        Close fileNum
+    Else
+        MsgBox "No LAMBDA functions found in the Name Manager."
+    End If
+
+End Sub

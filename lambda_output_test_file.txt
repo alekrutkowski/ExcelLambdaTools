@@ -1,0 +1,16 @@
+# another function
+# is defined
+# below
+funcanother =LAMBDA(i,j,k,LET(MMM, 1,n, 2,MMM*i + n*j + k))
+
+# my function 1
+# is here
+myfun1 = LAMBDA(x,y, x + y)
+
+# my second function
+myfun2 = LAMBDA(a,b,LAMBDA(z,a*b))
+
+
+testing = LAMBDA(i,j,k,   LET(m, 1,  n, 2,  m*i + n*j + k))
+
+
