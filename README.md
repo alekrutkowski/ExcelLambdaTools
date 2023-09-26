@@ -23,7 +23,7 @@ you will get this:
 | **16**  | A     | CP_NAC_HAB  | P31_S14  | CZ   | 237040   | 253890   | 290420   |
 | **17**  | A     | CP_NAC_HAB  | P31_S14  | DE   | 19890 p  | 20800 p  | 22930 p  |
 
-If you use the function `=reshapeToLong(A1:G17,{"unit","na_item","geo"},{2020,2021,2022},"val","year")` in any Excel cell that has sufficiently many
+If you use the function **`=reshapeToLong(A1:G17,{"unit","na_item","geo"},{2020,2021,2022},"val","year")`** in any Excel cell that has sufficiently many
 empty cells below and to the right (to avoid the [#SPILL! error](https://support.microsoft.com/en-us/office/how-to-correct-a-spill-error-ffe0f555-b479-4a17-a6e2-ef9cc9ad4023#:~:text=This%20error%20occurs%20when%20the,the%20obstructing%20cell(s).)) you will get this:
 
 | val      | year  | unit        | na_item  | geo  |
