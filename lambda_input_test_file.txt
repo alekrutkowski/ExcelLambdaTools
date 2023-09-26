@@ -1,0 +1,17 @@
+## this is my file
+
+# my function 1
+# is here
+myfun1 = lambda(x,y, x + y)
+
+# my second function
+myfun2 = lambda(a,b,
+                lambda(z,a*b))
+
+# another function
+# is defined
+# below
+funcanother = lambda(i, j, k,
+  let(MMM, 1,
+	n, 2,
+	MMM*i + n*j + k))
