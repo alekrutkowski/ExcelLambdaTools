@@ -1,0 +1,133 @@
+## My lambda functions
+
+# Return a link to Eurostat dataset web GUI for a given dataset code name
+linkToEurostatDataset	= LAMBDA(
+  dataset_code,
+    "https://ec.europa.eu/eurostat/databrowser/view/" &
+      UPPER(dataset_code) & "/default/table?lang=en"
+)
+
+withoutTopRow	= LAMBDA(range, drop(range, 1, ))
+
+topRow	= LAMBDA(range, take(range, 1, ))
+
+# From a given range with column names in its top row, return the columns according to the provided names
+selectColumnsByName	= Lambda(range,
+                             names_of_columns_to_select,
+                             let(
+                               indexes,
+                               MATCH(names_of_columns_to_select, topRow(range), 0),
+                               CHOOSECOLS(range, indexes)
+                             ))
+
+repeat = LAMBDA(value, count, IF(SEQUENCE(count, 1) <= count, value, ""))
+
+# Repeat a range n times and stack copies horizontally
+repeatRangeHorizontally	= LAMBDA(data_range, n,
+                                 CHOOSE(SEQUENCE(1, COLUMNS(data_range) *
+                                                                  n),
+                                        data_range))
+
+# Repeat a range n times and stack copies vertically
+repeatRangeVertically	= LAMBDA(data_range, n,
+                               INDEX(data_range,
+                                     MOD(SEQUENCE(ROWS(data_range) * n) - 1,
+                                         ROWS(data_range)) + 1,
+                                     SEQUENCE(1, COLUMNS(data_range))))
+
+# Similar to R's reshape/melt or Stata's reshape long:
+# Reshape a range with column names in its top row to a
+# "flatfile" type of multi-row format
+reshapeToLong	= lambda(
+  range_with_column_names,
+  names_of_id_columns,
+  names_of_columns_with_values,
+  name_of_new_value_column,
+  name_of_new_id_column,
+  let(
+    id_data,
+    withoutTopRow(selectColumnsByName(range_with_column_names, names_of_id_columns)),
+    val_data,
+    withoutTopRow(selectColumnsByName(range_with_column_names, names_of_columns_with_values)),
+    vstack(
+      hstack(
+        name_of_new_value_column,
+        name_of_new_id_column,
+        names_of_id_columns
+      ),
+      hstack(
+        TOCOL(val_data, , TRUE),
+        TOCOL(repeat(names_of_columns_with_values , ROWS(id_data))
+              ,, TRUE),
+        repeatRangeVertically(id_data, columns(
+          torow(names_of_columns_with_values, , TRUE)
+        ))
+      )
+    )
+  )
+)
+
+# Similar to R's `diff` function for the difference of sets
+setdiff	= LAMBDA(Range1, Range2, UNIQUE(FILTER(Range1, ISNA(
+  MATCH(Range1, Range2, 0)
+))))
+
+# Similar to R's `intersect` function for the intersection of sets
+intersect	= lambda(Range1, Range2, UNIQUE(FILTER(Range1, ISNUMBER(
+  MATCH(Range1, Range2, 0)
+))))
+
+# Evaluate R code in a running localhost Plumber server
+# see https://gist.github.com/alekrutkowski/c92c1d8f1c7573a5f5f02e456cbbe3ab
+evalRviaPlumber	= LAMBDA(
+  rCode,
+  LET(
+    serverUrl,
+    "http://localhost:9000/echo?msg=",
+    escapedCode,
+    ENCODEURL(rCode),
+    rawResult,
+    WEBSERVICE(serverUrl & escapedCode),
+    rawResultNoSquareBracketAndQuote,
+    MID(rawResult, 3, LEN(rawResult) - 4),
+    textsplit(rawResultNoSquareBracketAndQuote, "\t", "\r\n")
+  )
+)
+
+# Transform Excel range into R's vector literal e.g. c(1,2,3) or c('ab','cd')
+# and put it in a string
+asRvectorLiteral	= lambda(range,
+                          let(
+                            quotedIfString,
+                            IF(
+                              ISNUMBER(range),
+                              range,
+                              "'" & SUBSTITUTE(range, "'", char(92) & "'") & "'"
+                            ),
+                            joinedString,
+                            TEXTJOIN(",", FALSE, quotedIfString),
+                            "c(" & joinedString & ")"
+                          ))
+
+# Transform Excel range into R's matrix literal
+# and put it in a string
+asRmatrixLiteral	= lambda(range,
+                          "matrix(" &
+                            asRvectorLiteral(range) & 
+                            ",ncol=" & columns(range) & ",byrow=TRUE)")
+
+# Transform Excel range into R's data.frame literal
+# and put it in a string
+asRdataframeLiteral	= lambda(
+  range_with_column_names,
+  LET(
+    header,
+    "`" & topRow(range) & "`=",
+    body,
+    BYCOL(withoutTopRow(range_with_column_names), asRvectorLiteral),
+    joined,
+    TEXTJOIN(",", FALSE, header & body),
+    "data.frame(" &
+      joined & ",check.names=FALSE)"
+  )
+)

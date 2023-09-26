@@ -1,20 +1,22 @@
 Sub ImportLambdasFromTextFile()
 
-    Dim fileContent() As String
-    Dim i As Long
+    Dim fileContent() As String, parts() As String
+    Dim i As Long, j As Long
     Dim commentStr As String, commentStr2 As String, lambdaName As String, lambdaBody As String
     Dim inLambda As Boolean
     Dim MyName As Name
     
-    Dim regex As Object
+    Dim regex As Object, regex2 As Object
     Dim match As Variant
 
     ' Create regex object
     Set regex = CreateObject("VBScript.RegExp")
+    Set regex2 = CreateObject("VBScript.RegExp")
     ' Set the regex pattern
     regex.Pattern = "^[a-zA-Z0-9._]+\s*\=\s*lambda\("
     regex.Global = False
     regex.MultiLine = True
+    regex.IgnoreCase = True
     
     Dim filePath As Variant
 
@@ -33,7 +35,7 @@ Sub ImportLambdasFromTextFile()
     Dim ws As Worksheet
     ' Delete the worksheet if it exists
     For Each ws In wb.Worksheets
-        If ws.Name = "Custom Functions" Then
+        If UCase(ws.Name) = "CUSTOM FUNCTIONS" Then
             Application.DisplayAlerts = False
             ws.Delete
             Application.DisplayAlerts = True
@@ -69,12 +71,18 @@ Sub ImportLambdasFromTextFile()
                 commentStr2 = commentStr
                 startRow = startRow + 1
                 commentStr = ""  ' Reset commentStr for next iteration
-                
+   
                 ' Capture the lambda name
                 lambdaName = Trim(Split(line, "=")(0))
                 
                 ' Start capturing the lambda body
-                lambdaBody = Trim(Split(line, "=")(1))
+                ' Split the string by equal sign
+                parts = Split(line, "=")
+                lambdaBody = ""
+                ' Concatenate all chunks from the second till the last one
+                For j = 1 To UBound(parts)
+                    lambdaBody = lambdaBody & parts(j)
+                Next j
                 inLambda = True
             ' If we're inside a lambda, continue capturing its body
             ElseIf inLambda Then
@@ -92,13 +100,18 @@ Sub ImportLambdasFromTextFile()
         
         If isLastLine Or isNextLineEmptyOrComment Then
             If inLambda Then
+                ' Set the regex properties
+                regex2.Pattern = "\s"  ' Matches any whitespace character
+                regex2.Global = True   ' Replace all occurrences
+                ' Use regex to replace all whitespace characters with an empty string
+                lambdaName = regex2.Replace(lambdaName, "")
                 ' Output the lambda name and body
                 ws.Cells(startRow, startCol).Value = lambdaName
                 lambdaBody = "= " & lambdaBody
                 ws.Cells(startRow, startCol + 1).Value = ("'" & lambdaBody)
                 With ActiveWorkbook
                     Set MyName = .Names.Add(Name:=lambdaName, _
-                        RefersTo:=Replace(Replace(Replace(Replace(lambdaBody, vbTab, ""), vbCrLf, ""), vbCr, ""), vbLf, "")) ' Remove Tabs And Line Breaks
+                        RefersTo:=Replace(Replace(Replace(Replace(lambdaBody, vbTab, ""), vbCrLf, ""), vbCr, ""), vbLf, ""))  ' Remove Tabs And Line Breaks
                     With MyName
                         .Comment = commentStr2
                     End With
@@ -116,6 +129,9 @@ Sub ImportLambdasFromTextFile()
     Next i
     
     ActiveSheet.Cells.WrapText = False
+    ws.Columns("A").columnWidth = 25
+    ws.Cells.Font.Name = "Consolas"
+    ActiveWindow.Zoom = 80
     ' Activate Excel
     AppActivate Application.Caption
     ' Use SendKeys to simulate the keyboard shortcut for Name Manager (Ctrl + F3)
@@ -166,5 +182,7 @@ Sub ExportLambdasToTextFile()
     Else
         MsgBox "No LAMBDA functions found in the Name Manager."
     End If
+    
+    Shell "notepad.exe " & filePath, vbNormalFocus
 
 End Sub
