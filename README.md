@@ -4,6 +4,10 @@ The lambda functions can be ceasily imported from that that text file with a VBA
 
 ### Reshape (melt) from a wide data to a long data form
 
+Similar to R's [`melt`](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html) or Stata's [`reshape wide`](https://www.stata.com/help.cgi?reshape)
+
+Example:
+
 If you download the data from https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/NAMA_10_PC/.CP_EUR_HAB+CP_NAC_HAB.B1GQ+P31_S14.BE+BG+CZ+DE?format=TSV&startPeriod=2020&endPeriod=2022
 you will get this:
 
