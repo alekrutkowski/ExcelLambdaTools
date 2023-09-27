@@ -11,6 +11,9 @@ withoutTopRow	= LAMBDA(range, drop(range, 1, ))
 
 topRow	= LAMBDA(range, take(range, 1, ))
 
+# Borrowed from https://www.get-digital-help.com/workaround-for-the-textsplit-function-lambda-function
+textsplitArray = LAMBDA(range, delimiter, REDUCE(,range,LAMBDA(x,y,VSTACK(TEXTSPLIT(x, delimiter),TEXTSPLIT(y, delimiter)))))
+
 # From a given range with column names in its top row, return the columns according to the provided names
 selectColumnsByName	= Lambda(range,
                              names_of_columns_to_select,
@@ -20,7 +23,8 @@ selectColumnsByName	= Lambda(range,
                                CHOOSECOLS(range, indexes)
                              ))
 
-repeat = LAMBDA(value, count, IF(SEQUENCE(count, 1) <= count, value, ""))
+repeat = LAMBDA(value,count,
+				IF(SEQUENCE(count, 1) <= count, value, ""))
 
 # Repeat a range n times and stack copies horizontally
 repeatRangeHorizontally	= LAMBDA(data_range, n,
