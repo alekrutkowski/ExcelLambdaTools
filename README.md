@@ -1,4 +1,8 @@
-### Examples for some lambdas included in [`my_excel_lambda_functions.txt`](https://raw.githubusercontent.com/alekrutkowski/ExcelLambdaTools/main/my_excel_lambda_functions.txt)
+## Examples for some lambdas included in [`my_excel_lambda_functions.txt`](https://raw.githubusercontent.com/alekrutkowski/ExcelLambdaTools/main/my_excel_lambda_functions.txt)
+
+The lambda functions can be ceasily imported from that that text file with a VBA macro `ImportLambdasFromTextFile` from [`lambda_import_export.vba`](https://raw.githubusercontent.com/alekrutkowski/ExcelLambdaTools/main/lambda_import_export.vba).
+
+### Reshape (melt) from a wide data to a long data form
 
 If you download the data from https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/NAMA_10_PC/.CP_EUR_HAB+CP_NAC_HAB.B1GQ+P31_S14.BE+BG+CZ+DE?format=TSV&startPeriod=2020&endPeriod=2022
 you will get this:
