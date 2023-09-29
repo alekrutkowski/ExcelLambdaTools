@@ -2,9 +2,9 @@
 
 The [lambda functions](https://techcommunity.microsoft.com/t5/excel-blog/announcing-lambda-turn-excel-formulas-into-custom-functions/ba-p/1925546) can be ceasily imported from that that text file with a VBA macro `ImportLambdasFromTextFile` from [`lambda_import_export.vba`](https://raw.githubusercontent.com/alekrutkowski/ExcelLambdaTools/main/lambda_import_export.vba).
 
-### Reshape (melt) from a wide data to a long data form
+### &#9632;&nbsp; Reshape (melt) from a wide data to a long data form
 
-Similar to R's [`melt`](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html) or Stata's [`reshape wide`](https://www.stata.com/help.cgi?reshape)
+Similar to R's [`melt`](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html) or Stata's [`reshape long`](https://www.stata.com/help.cgi?reshape)
 
 Example:
 
@@ -85,3 +85,10 @@ empty cells below and to the right (to avoid the [#SPILL! error](https://support
 | 290420   | 2022  | CP_NAC_HAB  | P31_S14  | CZ   |
 | 22930 p  | 2022  | CP_NAC_HAB  | P31_S14  | DE   |
 
+### &#9632;&nbsp; Reshape (cast) from a wide data to a long data form
+
+Similar to R's [`cast` or `dcast`](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html) or Stata's [`reshape wide`](https://www.stata.com/help.cgi?reshape)
+
+Now, if you want to reverse the above transformation and go from the long table to the wide one, use the function **`=reshapeToWide(J1#,{"unit","na_item","geo"},"val","year")`** (where `J1` is the top left corner of the long table produced by `reshapeToLong`, but use the standard Excel *top-left-cell*&nbsp;**:**&nbsp;*bottom-right-cell* notation if you have a static set of data cells, otherwise you'll get the `#REF!` error). Again, make sure that the Excel cell where you call `reshapeToWide` has sufficiently many empty cells below and to the right (to avoid the [#SPILL! error](https://support.microsoft.com/en-us/office/how-to-correct-a-spill-error-ffe0f555-b479-4a17-a6e2-ef9cc9ad4023#:~:text=This%20error%20occurs%20when%20the,the%20obstructing%20cell(s).)).
+
+Note that if some combinations/rows of the id variables ('unit', 'na_item', 'geo', and 'year' in the example) where missing, you would bet the missing data cells (`#N/A`s) in the wide version produced by `reshapeToWide`.
