@@ -11,6 +11,14 @@ withoutTopRow	= LAMBDA(range, drop(range, 1, ))
 
 topRow	= LAMBDA(range, take(range, 1, ))
 
+valOfCols = lambda(range_with_column_names, column_names,
+		withoutTopRow(selectColumnsByName(range_with_column_names, column_names)))
+
+addNewCols = lambda(range_with_column_names, new_column_names, new_column_values,
+		HSTACK(range_with_column_names,
+			VSTACK(new_column_names, new_column_values))
+		)
+
 # Borrowed from https://www.get-digital-help.com/workaround-for-the-textsplit-function-lambda-function
 textsplitArray = LAMBDA(range, delimiter, REDUCE(,range,LAMBDA(x,y,VSTACK(TEXTSPLIT(x, delimiter),TEXTSPLIT(y, delimiter)))))
 
@@ -68,6 +76,45 @@ reshapeToLong	= lambda(
         ))
       )
     )
+  )
+)
+
+# Similar to R's reshape/cast/dcast or Stata's reshape wide:
+# Reshape a range with column names in its top row to a
+# "wide" type of multi-column format
+reshapeToWide	= lambda(
+  range_with_column_names,
+  names_of_id_columns,
+  name_of_column_with_values,
+  name_of_column_with_ids_to_be_used_as_new_columns,
+  let(
+    id_data,
+    withoutTopRow(selectColumnsByName(range_with_column_names, names_of_id_columns)),
+    val_data,
+    withoutTopRow(selectColumnsByName(range_with_column_names, name_of_column_with_values)),
+	ID_CODE,
+	BYROW(id_data, LAMBDA(x,TEXTJOIN("",FALSE,x))),
+	uniq_id_data,
+	UNIQUE(id_data),
+	uniq_ID_CODE,
+	BYROW(uniq_id_data,LAMBDA(x,TEXTJOIN("",FALSE,x))),
+	NEW_COL_id_column,
+	withoutTopRow(selectColumnsByName(range_with_column_names, name_of_column_with_ids_to_be_used_as_new_columns)),
+	new_col_names,
+	UNIQUE(NEW_COL_id_column),
+	three_NAs,
+	TRANSPOSE(repeat(NA(),3)),
+	mydf,
+	HSTACK(NEW_COL_id_column, ID_CODE,val_data),
+	REDUCE(VSTACK(names_of_id_columns, uniq_id_data),
+		new_col_names,
+		LAMBDA(prev_df,x,
+			LET(filtered_df, FILTER(mydf, INDEX(mydf,,1)=x, three_NAs),
+				filtered_df2, REDUCE({"","",""}, uniq_ID_CODE,
+								LAMBDA(prev_df2,y,VSTACK(prev_df2,FILTER(filtered_df,INDEX(filtered_df,,2)=y, three_NAs)))),
+				filtered_df3, DROP(filtered_df2,1),
+				new_col, VSTACK(x,INDEX(filtered_df3,,3)),
+				HSTACK(prev_df,new_col))))
   )
 )
 
