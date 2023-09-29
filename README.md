@@ -91,4 +91,18 @@ Similar to R's [`cast` or `dcast`](https://cran.r-project.org/web/packages/data.
 
 Now, if you want to reverse the above transformation and go from the long table to the wide one, use the function **`=reshapeToWide(J1#,{"unit","na_item","geo"},"val","year")`** (where `J1` is the top left corner of the long table produced by `reshapeToLong`, but use the standard Excel *top-left-cell*&nbsp;**:**&nbsp;*bottom-right-cell* notation if you have a static set of data cells, otherwise you'll get the `#REF!` error). Again, make sure that the Excel cell where you call `reshapeToWide` has sufficiently many empty cells below and to the right (to avoid the [#SPILL! error](https://support.microsoft.com/en-us/office/how-to-correct-a-spill-error-ffe0f555-b479-4a17-a6e2-ef9cc9ad4023#:~:text=This%20error%20occurs%20when%20the,the%20obstructing%20cell(s).)).
 
-Note that if some combinations/rows of the id variables ('unit', 'na_item', 'geo', and 'year' in the example) where missing, you would get the missing data cells (`#N/A`s) in the wide version produced by `reshapeToWide`.
+Note that if some combinations/rows of the id variables ('unit', 'na_item', 'geo', and 'year' in the example) where missing, you would get the missing data cells (`#N/A`s) in the wide version produced by `reshapeToWide`. E.g., calling `=reshapeToWide(A1:D4,{"id1","id2"},"v","yr")` with the source data:
+
+|       | A   | B   | C   | D     |
+|-------|-----|-----|-----|-------|
+| **1** | id1 | id2 | v   | yr    |
+| **2** | a   | b   | 101 | 2020  |
+| **3** | b   | a   | 102 | 2020  |
+| **4** | a   | b   | 103 | 2021  |
+
+generates the following output:
+
+| id1 | id2 | 2020 | 2021  |
+|-----|-----|------|-------|
+| a   | b   | 101  | 103   |
+| b   | a   | 102  | #N/A  |
