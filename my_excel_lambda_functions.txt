@@ -1,5 +1,16 @@
 ## My lambda functions
 
+# Drop all those columns where all cells are empty and all those rows where all cells are empty	
+noEmpty = LAMBDA(range,
+LET(
+keys, BYROW(range, LAMBDA(rng, TEXTJOIN("",FALSE,rng))),
+range2, FILTER(range, keys<>""),
+range3, TRANSPOSE(range2),
+keys2, BYROW(range3, LAMBDA(rng, TEXTJOIN("",FALSE,rng))),
+range4, FILTER(range3, keys2<>""),
+TRANSPOSE(range4))
+)
+
 # Return a link to Eurostat dataset web GUI for a given dataset code name
 linkToEurostatDataset	= LAMBDA(
   dataset_code,
