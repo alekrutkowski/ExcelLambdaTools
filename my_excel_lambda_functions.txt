@@ -1,5 +1,17 @@
 ## My lambda functions
 
+# Inner join on left-most column
+=LAMBDA(Table1, Table2, 
+    LET(
+        join_col1, INDEX(Table1, ,1),  
+        join_col2, INDEX(Table2, ,1),  
+        filtered_rows, FILTER(Table1, ISNUMBER(MATCH(join_col1, join_col2, 0))), 
+        salaries, XLOOKUP(INDEX(filtered_rows, ,1), join_col2, INDEX(Table2, ,2)), 
+        final_result, IFERROR(CHOOSE({1,2,3}, INDEX(filtered_rows,,1), INDEX(filtered_rows,,2), salaries), "No Match"),
+        final_result
+    )
+)
+
 # Drop all those columns where all cells are empty and all those rows where all cells are empty	
 noEmpty = LAMBDA(range,
 LET(
