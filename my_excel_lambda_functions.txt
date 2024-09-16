@@ -1,7 +1,7 @@
 ## My lambda functions
 
 # Inner join on left-most column
-=LAMBDA(Table1, Table2, 
+mergeArrays = LAMBDA(Table1, Table2, 
     LET(
         join_col1, INDEX(Table1, ,1),  
         join_col2, INDEX(Table2, ,1),  
