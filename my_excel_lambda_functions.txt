@@ -196,7 +196,7 @@ asRdataframeLiteral	= lambda(
   range_with_column_names,
   LET(
     header,
-    "`" & topRow(range) & "`=",
+    "`" & topRow(range_with_column_names) & "`=",
     body,
     BYCOL(withoutTopRow(range_with_column_names), asRvectorLiteral),
     joined,
