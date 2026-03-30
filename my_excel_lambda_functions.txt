@@ -141,7 +141,7 @@ reshapeToWide	= lambda(
   )
 )
 
-# Similar to R's `diff` function for the difference of sets
+# Similar to R's `setdiff` function for the difference of sets
 setdiff	= LAMBDA(Range1, Range2, UNIQUE(FILTER(Range1, ISNA(
   MATCH(Range1, Range2, 0)
 ))))
